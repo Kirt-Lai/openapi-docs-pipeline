@@ -1,0 +1,94 @@
+openapi: 3.0.0
+info:
+  title: Demo Platform API
+  version: 1.0.0
+  description: 環境變數 `baseUrl`（預設 https://api.demo-platform.example.com）、`access_token`。
+servers:
+- url: '{baseUrl}'
+  variables:
+    baseUrl:
+      default: https://api.demo-platform.example.com
+tags:
+- name: 認證與登入
+- name: 會員
+- name: 錢包與交易
+- name: 彩票／遊戲
+paths:
+  /api/login:
+    post:
+      tags: [認證與登入]
+      summary: 會員登入
+      operationId: postApiLogin
+      x-requires-token: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_identify: {type: string, example: tester}
+                password: {type: string, example: "********"}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              example:
+                result:
+                  token: demo-token
+                  id: "10001"
+  /api/member:
+    get:
+      tags: [會員]
+      summary: 取得會員資料
+      operationId: getApiMember
+      x-requires-token: true
+      security: [{bearerAuth: []}]
+      parameters:
+      - in: header
+        name: Authorization
+        schema: {type: string}
+      responses:
+        "200":
+          description: OK
+  /api/station-wallet/get-list:
+    get:
+      tags: [錢包與交易]
+      summary: 取得錢包清單
+      operationId: getStationWalletList
+      x-requires-token: true
+      security: [{bearerAuth: []}]
+      parameters:
+      - in: header
+        name: Authorization
+        schema: {type: string}
+      responses:
+        "200":
+          description: OK
+  /api/station-play/{wallet_id}:
+    get:
+      tags: [彩票／遊戲]
+      summary: 取得遊戲進入 URL
+      operationId: getStationPlay
+      x-requires-token: true
+      security: [{bearerAuth: []}]
+      parameters:
+      - in: path
+        name: wallet_id
+        required: true
+        schema: {type: string}
+      - in: header
+        name: Authorization
+        schema: {type: string}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              example:
+                result: https://vendor-slot-a.example.com/play
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
